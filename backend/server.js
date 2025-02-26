@@ -15,8 +15,10 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 async function getTranscript(youtubeUrl) {
+  // Launch puppeteer, and let it automatically install Chromium
   const browser = await puppeteer.launch({
-    headless: true, // Use headless mode for production
+    headless: true, // Run headless
+    args: ['--no-sandbox', '--disable-setuid-sandbox'], // Add flags for production environments like Render
   });
 
   const page = await browser.newPage();
