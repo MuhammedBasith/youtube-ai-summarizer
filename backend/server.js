@@ -11,26 +11,27 @@ app.use(cors());
 app.use(express.json());
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-console.log(GEMINI_API_KEY);
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 async function getTranscript(youtubeUrl) {
   const browser = await puppeteer.launch({
-    executablePath: "C:\\Users\\287647\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe",
-    headless: "new",
+    headless: true, // Use headless mode for production
   });
 
   const page = await browser.newPage();
   await page.goto("https://notegpt.io/youtube-transcript-generator", { waitUntil: "domcontentloaded" });
   console.log("went to");
 
+  // Enter YouTube URL
   await page.type(".ng-script-input input", youtubeUrl);
   console.log("Entered");
 
+  // Click "Generate Transcript" button
   await page.click(".ng-script-btn");
   console.log("Clicked");
 
+  // Wait for transcript to load
   await page.waitForSelector('.ng-transcript-item-text .text-container', { timeout: 15000 });
 
   // Extract transcript from the page directly
@@ -38,13 +39,13 @@ async function getTranscript(youtubeUrl) {
     const items = document.querySelectorAll('.ng-transcript-item-text .text-container');
     let transcriptText = '';
     items.forEach(item => {
-      transcriptText += item.innerText + '\n';
+      transcriptText += item.innerText + '\n';  // Collect all text from transcript items
     });
     return transcriptText;
   });
 
   await browser.close();
-  console.log("Transcript extracted", transcript);
+  console.log("Transcript extracted");
   return transcript;
 }
 
